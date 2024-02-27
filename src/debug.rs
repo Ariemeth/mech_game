@@ -1,4 +1,6 @@
 use bevy::prelude::*;
+use crate::mech::Mech;
+use crate::movement::{Acceleration, Velocity};
 
 pub struct DebugPlugin;
 
@@ -8,12 +10,12 @@ impl Plugin for DebugPlugin {
     }
 }
 
-fn print_position(query: Query<(Entity, &Transform)>) {
+fn print_position(query: Query<(Entity, &Transform, &Acceleration, &Velocity),With<Mech>>) {
     // Log the entity ID and translation of each entity with a `Position` component.
-    for (entity, transform) in query.iter() {
+    for (entity, transform, acceleration, velocity) in query.iter() {
         info!(
-            "Entity {:?} is at position {:?},",
-            entity, transform.translation
+            "Entity {:?} pos: {:?}, vel: {:?}, acc: {:?}",
+            entity, transform.translation,velocity.value, acceleration.value
         );
     }
 }
