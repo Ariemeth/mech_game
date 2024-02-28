@@ -1,14 +1,10 @@
 use bevy::prelude::*;
+
 use crate::{
     asset_loader::SceneAssets,
+    movement::Acceleration,
     movement::Velocity,
 };
-use crate::movement::Acceleration;
-
-const STARTING_TRANSLATION: Vec3 = Vec3::new(0.0, 0.0, -20.0);
-const STARTING_VELOCITY: Vec3 = Vec3::new(0.0, 0.0, 0.0);
-const SPACESHIP_ROTATION_SPEED: f32 = 2.5;
-const SPACESHIP_SPEED: f32 = 25.0;
 
 #[derive(Bundle)]
 struct MechBundle {
@@ -24,56 +20,52 @@ pub struct MechPlugin;
 
 impl Plugin for MechPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(PostStartup, spawn_mech)
-            .add_systems(Update, mech_movement_controls);
+        app.add_systems(PostStartup, spawn_mechs);
     }
 }
 
-fn spawn_mech(mut commands: Commands, scene_assets: Res<SceneAssets>) {
+fn spawn_mechs(mut commands: Commands, scene_assets: Res<SceneAssets>) {
+    let mech_bundle_1 = build_mech(
+        &scene_assets,
+        Vec3::new(40.0, 0.0, 0.0),
+        Vec3::ZERO,
+        -std::f32::consts::PI / 2.0,
+    );
     commands.spawn((
-        MechBundle {
-            acceleration: Acceleration {value: Vec3::ZERO},
-            velocity: Velocity {
-                value: STARTING_VELOCITY,
-            },
-            model: SceneBundle {
-                scene: scene_assets.mech.clone(),
-                transform: Transform::from_translation(STARTING_TRANSLATION),
-                ..default()
-            },
-        },
+        mech_bundle_1,
+        Mech,
+    ));
+
+    let mech_bundle_2 = build_mech(
+        &scene_assets,
+        Vec3::new(-40.0, 0.0, 0.0),
+        Vec3::ZERO,
+        std::f32::consts::PI / 2.0,
+    );
+    commands.spawn((
+        mech_bundle_2,
         Mech,
     ));
 }
 
-fn mech_movement_controls(
-    mut query: Query<(&mut Transform, &mut Velocity, &mut Acceleration), With<Mech>>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-) {
-    let Ok((mut transform, mut velocity, mut acceleration)) = query.get_single_mut() else {
-        return;
-    };
-    let mut rotation = 0.0;
-    let mut movement = 0.0;
-    let mut acceleration_x = 0.0;
+fn build_mech(
+    scene_assets: &Res<SceneAssets>,
+    starting_location: Vec3,
+    starting_velocity: Vec3,
+    angle: f32,
+) -> MechBundle {
+    let mut transform = Transform::from_translation(starting_location);
+    transform.rotate_y(angle);
 
-    if keyboard_input.pressed(KeyCode::KeyD) {
-        acceleration_x = -1.;
-    } else if keyboard_input.pressed(KeyCode::KeyA) {
-        acceleration_x = 1.;
+    MechBundle {
+        acceleration: Acceleration { value: Vec3::ZERO },
+        velocity: Velocity {
+            value: starting_velocity,
+        },
+        model: SceneBundle {
+            scene: scene_assets.mech.clone(),
+            transform,
+            ..default()
+        },
     }
-
-    acceleration.value.x = acceleration_x
-
-    // if keyboard_input.pressed(KeyCode::KeyS) {
-    //     movement = -SPACESHIP_SPEED;
-    // } else if keyboard_input.pressed(KeyCode::KeyW) {
-    //     movement = SPACESHIP_SPEED;
-    // }
-
-  //  transform.rotate_y(rotation);
-
-    // Update the spaceship's velocity based on new direction.
-   // velocity.value = -transform.forward() * movement;
 }
