@@ -4,6 +4,7 @@ mod movement;
 mod mech;
 mod global_input;
 mod asset_loader;
+mod targeting;
 
 use bevy::prelude::*;
 use bevy::render::RenderPlugin;
@@ -14,6 +15,7 @@ use movement::MovementPlugin;
 use mech::MechPlugin;
 use global_input::GlobalInputPlugin;
 use crate::asset_loader::AssetLoaderPlugin;
+use crate::targeting::TargetingPlugin;
 
 fn main() {
     App::new()
@@ -37,5 +39,6 @@ fn main() {
         .add_plugins(MechPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(GlobalInputPlugin)
+        .add_plugins(TargetingPlugin)
         .run();
 }

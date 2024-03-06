@@ -15,7 +15,10 @@ fn print_position(query: Query<(Entity, &Transform, &Acceleration, &Velocity),Wi
     for (entity, transform, acceleration, velocity) in query.iter() {
         info!(
             "Entity {:?} pos: {:?}, vel: {:?}, acc: {:?}",
-            entity, transform.translation,velocity.value, acceleration.value
+            entity,
+            transform.translation,
+            velocity.value,
+            acceleration.value
         );
     }
 }

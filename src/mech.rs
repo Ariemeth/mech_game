@@ -4,13 +4,18 @@ use crate::{
     asset_loader::SceneAssets,
     movement::Acceleration,
     movement::Velocity,
+    targeting::{Targetable, Targeting}
 };
+use crate::targeting::TargetingType;
 
 #[derive(Bundle)]
 struct MechBundle {
     acceleration: Acceleration,
     velocity: Velocity,
     model: SceneBundle,
+    mech: Mech,
+    targeting: Targeting,
+    targetable: Targetable
 }
 
 #[derive(Component, Debug)]
@@ -31,10 +36,7 @@ fn spawn_mechs(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         Vec3::ZERO,
         -std::f32::consts::PI / 2.0,
     );
-    commands.spawn((
-        mech_bundle_1,
-        Mech,
-    ));
+    commands.spawn(mech_bundle_1);
 
     let mech_bundle_2 = build_mech(
         &scene_assets,
@@ -42,10 +44,7 @@ fn spawn_mechs(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         Vec3::ZERO,
         std::f32::consts::PI / 2.0,
     );
-    commands.spawn((
-        mech_bundle_2,
-        Mech,
-    ));
+    commands.spawn(mech_bundle_2);
 }
 
 fn build_mech(
@@ -67,5 +66,11 @@ fn build_mech(
             transform,
             ..default()
         },
+        mech: Mech,
+        targeting: Targeting{
+            target: None,
+            targeting_type: TargetingType::Closest,
+        },
+        targetable: Targetable{},
     }
 }
