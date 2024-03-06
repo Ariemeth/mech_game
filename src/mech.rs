@@ -4,7 +4,8 @@ use crate::{
     asset_loader::SceneAssets,
     movement::Acceleration,
     movement::Velocity,
-    targeting::{Targetable, Targeting}
+    targeting::{Targetable, Targeter},
+    health::Health,
 };
 use crate::targeting::TargetingType;
 
@@ -14,8 +15,9 @@ struct MechBundle {
     velocity: Velocity,
     model: SceneBundle,
     mech: Mech,
-    targeting: Targeting,
-    targetable: Targetable
+    targeting: Targeter,
+    targetable: Targetable,
+    health: Health,
 }
 
 #[derive(Component, Debug)]
@@ -67,10 +69,11 @@ fn build_mech(
             ..default()
         },
         mech: Mech,
-        targeting: Targeting{
+        targeting: Targeter {
             target: None,
             targeting_type: TargetingType::Closest,
         },
         targetable: Targetable{},
+        health: Health::new(100),
     }
 }

@@ -5,17 +5,21 @@ mod mech;
 mod global_input;
 mod asset_loader;
 mod targeting;
+mod weapons;
+mod health;
 
 use bevy::prelude::*;
 use bevy::render::RenderPlugin;
 use bevy::render::settings::{Backends, RenderCreation, WgpuSettings};
 use camera::CameraPlugin;
-use debug::DebugPlugin;
+//use debug::DebugPlugin;
 use movement::MovementPlugin;
 use mech::MechPlugin;
 use global_input::GlobalInputPlugin;
 use crate::asset_loader::AssetLoaderPlugin;
+use crate::health::HealthPlugin;
 use crate::targeting::TargetingPlugin;
+use crate::weapons::WeaponPlugin;
 
 fn main() {
     App::new()
@@ -35,10 +39,12 @@ fn main() {
         // User defined plugins.
         .add_plugins(AssetLoaderPlugin)
         .add_plugins(MovementPlugin)
-        .add_plugins(DebugPlugin)
+        // .add_plugins(DebugPlugin)
         .add_plugins(MechPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(GlobalInputPlugin)
         .add_plugins(TargetingPlugin)
+        .add_plugins(WeaponPlugin)
+        .add_plugins(HealthPlugin)
         .run();
 }

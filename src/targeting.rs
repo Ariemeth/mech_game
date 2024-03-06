@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 #[derive(Component, Debug)]
-pub struct Targeting {
+pub struct Targeter {
     pub target: Option<Entity>,
     pub targeting_type: TargetingType,
 }
@@ -23,36 +23,40 @@ impl Plugin for TargetingPlugin {
 }
 
 fn update_target(
-    mut query: Query<(&mut Targeting, &Transform)>,
+    mut query: Query<(Entity, &mut Targeter, &Transform)>,
     possible_targets: Query<(Entity, &Targetable, &Transform)>,
 ) {
-    for (mut targeting, transform) in query.iter_mut() {
+    for (targeting_entity,mut targeting, transform) in query.iter_mut() {
         if targeting.target.is_some() {
-            println!("Already targeting {:?}", &targeting.target);
+            // TODO check if target is still valid and if it is, skip to next entity
             continue;
         }
         match targeting.targeting_type {
             TargetingType::Closest => {
-                let mut distance = f32::MAX;
-                let mut possible_target = None;
-                for (entity, _targetable, target_transform) in possible_targets.iter() {
-                    if transform == target_transform {
-                        println!("Cannot target oneself");
-                        continue;
-                    }
-                    let distance_to_target = transform.translation.distance_squared(target_transform.translation);
-
-                    if distance_to_target < distance {
-                        println!("Targetable {:?} is closer", &entity);
-                        possible_target = Some(entity);
-                        distance = distance_to_target
-                    }
-                }
-
-                if let Some(target) = possible_target {
-                    targeting.target = Some(target);
-                }
+                target_closest(&possible_targets, &targeting_entity, &mut targeting, transform);
             }
         }
+    }
+}
+
+fn target_closest(possible_targets: &Query<(Entity, &Targetable, &Transform)>, targeting_entity: &Entity, targeting: &mut Mut<Targeter>, transform: &Transform) {
+    let mut distance = f32::MAX;
+    let mut possible_target = None;
+    for (entity, _targetable, target_transform) in possible_targets.iter() {
+        if transform == target_transform {
+            println!("{:?} cannot target oneself", &targeting_entity);
+            continue;
+        }
+        let distance_to_target = transform.translation.distance_squared(target_transform.translation);
+
+        if distance_to_target < distance {
+            println!("Targetable {:?} is closer to {:?}", &entity, &targeting_entity);
+            possible_target = Some(entity);
+            distance = distance_to_target
+        }
+    }
+
+    if let Some(target) = possible_target {
+        targeting.target = Some(target);
     }
 }
