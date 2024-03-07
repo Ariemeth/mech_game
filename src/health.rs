@@ -10,12 +10,8 @@ impl Health {
         Health { hp }
     }
 
-    pub fn get_hp(&self) -> i64 {
-        self.hp
-    }
-
     pub fn damage(&mut self, damage: u32) {
-        self.hp -= damage;
+        self.hp -= damage as i64;
     }
 }
 
@@ -30,7 +26,8 @@ impl Plugin for HealthPlugin {
 fn check_health(mut commands: Commands, query: Query<(Entity, &Health)>) {
     for (entity, health) in query.iter() {
         if health.hp <= 0 {
-            commands.entity(entity).despawn();
+            println!("Entity {:?} has died", entity);
+            commands.entity(entity).despawn_recursive();
             continue;
         }
     }

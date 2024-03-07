@@ -2,12 +2,13 @@ use bevy::prelude::*;
 
 use crate::{
     asset_loader::SceneAssets,
+    health::Health,
     movement::Acceleration,
     movement::Velocity,
     targeting::{Targetable, Targeter},
-    health::Health,
 };
 use crate::targeting::TargetingType;
+use crate::weapons::WeaponSlot;
 
 #[derive(Bundle)]
 struct MechBundle {
@@ -46,7 +47,17 @@ fn spawn_mechs(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         Vec3::ZERO,
         std::f32::consts::PI / 2.0,
     );
-    commands.spawn(mech_bundle_2);
+    commands.spawn((
+        mech_bundle_2,
+        WeaponSlot {
+            weapon: crate::weapons::Weapon {
+                damage: 10,
+                range: 100.0,
+                cooldown: 1.0,
+                time_since_last_fired: 0.0,
+                accuracy: 0.9,
+            }
+        }));
 }
 
 fn build_mech(
@@ -73,7 +84,7 @@ fn build_mech(
             target: None,
             targeting_type: TargetingType::Closest,
         },
-        targetable: Targetable{},
+        targetable: Targetable {},
         health: Health::new(100),
     }
 }

@@ -7,6 +7,7 @@ mod asset_loader;
 mod targeting;
 mod weapons;
 mod health;
+mod attack;
 
 use bevy::prelude::*;
 use bevy::render::RenderPlugin;
@@ -17,6 +18,7 @@ use movement::MovementPlugin;
 use mech::MechPlugin;
 use global_input::GlobalInputPlugin;
 use crate::asset_loader::AssetLoaderPlugin;
+use crate::attack::AttackPlugin;
 use crate::health::HealthPlugin;
 use crate::targeting::TargetingPlugin;
 use crate::weapons::WeaponPlugin;
@@ -46,5 +48,6 @@ fn main() {
         .add_plugins(TargetingPlugin)
         .add_plugins(WeaponPlugin)
         .add_plugins(HealthPlugin)
+        .add_plugins(AttackPlugin)
         .run();
 }
