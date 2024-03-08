@@ -46,7 +46,6 @@ fn target_closest(possible_targets: &Query<(Entity, &Targetable, &Transform)>, t
     let mut possible_target = None;
     for (entity, _targetable, target_transform) in possible_targets.iter() {
         if transform == target_transform {
-            println!("{:?} cannot target oneself", &targeting_entity);
             continue;
         }
         let distance_to_target = transform.translation.distance_squared(target_transform.translation);

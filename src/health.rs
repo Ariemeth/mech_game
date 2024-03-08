@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::weapons::DamageType;
 
 #[derive(Component, Debug)]
 pub struct Health {
@@ -10,8 +11,16 @@ impl Health {
         Health { hp }
     }
 
-    pub fn damage(&mut self, damage: u32) {
-        self.hp -= damage as i64;
+    pub fn get_hp(&self) -> i64 {
+        self.hp
+    }
+
+    pub fn damage(&mut self, damage: DamageType) {
+        self.hp -= match damage {
+            DamageType::Kinetic(amount) => amount as i64,
+            DamageType::Energy(amount) => amount as i64,
+            DamageType::Explosive(amount) => amount as i64,
+        };
     }
 }
 

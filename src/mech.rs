@@ -8,7 +8,7 @@ use crate::{
     targeting::{Targetable, Targeter},
 };
 use crate::targeting::TargetingType;
-use crate::weapons::WeaponSlot;
+use crate::weapons::{DamageType, Weapon, WeaponSlot};
 
 #[derive(Bundle)]
 struct MechBundle {
@@ -19,6 +19,37 @@ struct MechBundle {
     targeting: Targeter,
     targetable: Targetable,
     health: Health,
+}
+
+impl MechBundle {
+    fn new(
+        scene_assets: &Res<SceneAssets>,
+        starting_location: Vec3,
+        starting_velocity: Vec3,
+        angle: f32,
+    ) -> MechBundle {
+        let mut transform = Transform::from_translation(starting_location);
+        transform.rotate_y(angle);
+
+        MechBundle {
+            acceleration: Acceleration { value: Vec3::ZERO },
+            velocity: Velocity {
+                value: starting_velocity,
+            },
+            model: SceneBundle {
+                scene: scene_assets.mech.clone(),
+                transform,
+                ..default()
+            },
+            mech: Mech,
+            targeting: Targeter {
+                target: None,
+                targeting_type: TargetingType::Closest,
+            },
+            targetable: Targetable {},
+            health: Health::new(100),
+        }
+    }
 }
 
 #[derive(Component, Debug)]
@@ -33,15 +64,20 @@ impl Plugin for MechPlugin {
 }
 
 fn spawn_mechs(mut commands: Commands, scene_assets: Res<SceneAssets>) {
-    let mech_bundle_1 = build_mech(
+    let mech_bundle_1 = MechBundle::new(
         &scene_assets,
         Vec3::new(40.0, 0.0, 0.0),
         Vec3::ZERO,
         -std::f32::consts::PI / 2.0,
     );
-    commands.spawn(mech_bundle_1);
+    commands.spawn((
+        mech_bundle_1,
+        WeaponSlot {
+            weapon: Weapon::new(DamageType::Kinetic(11), 100.0, 1.0, 0.85),
+        }
+    ));
 
-    let mech_bundle_2 = build_mech(
+    let mech_bundle_2 = MechBundle::new(
         &scene_assets,
         Vec3::new(-40.0, 0.0, 0.0),
         Vec3::ZERO,
@@ -50,41 +86,7 @@ fn spawn_mechs(mut commands: Commands, scene_assets: Res<SceneAssets>) {
     commands.spawn((
         mech_bundle_2,
         WeaponSlot {
-            weapon: crate::weapons::Weapon {
-                damage: 10,
-                range: 100.0,
-                cooldown: 1.0,
-                time_since_last_fired: 0.0,
-                accuracy: 0.9,
-            }
+            weapon: Weapon::new(DamageType::Energy(10), 100.0, 1.0, 0.9),
         }));
 }
 
-fn build_mech(
-    scene_assets: &Res<SceneAssets>,
-    starting_location: Vec3,
-    starting_velocity: Vec3,
-    angle: f32,
-) -> MechBundle {
-    let mut transform = Transform::from_translation(starting_location);
-    transform.rotate_y(angle);
-
-    MechBundle {
-        acceleration: Acceleration { value: Vec3::ZERO },
-        velocity: Velocity {
-            value: starting_velocity,
-        },
-        model: SceneBundle {
-            scene: scene_assets.mech.clone(),
-            transform,
-            ..default()
-        },
-        mech: Mech,
-        targeting: Targeter {
-            target: None,
-            targeting_type: TargetingType::Closest,
-        },
-        targetable: Targetable {},
-        health: Health::new(100),
-    }
-}
