@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+
 use crate::weapons::DamageType;
 
 #[derive(Component, Debug)]
@@ -32,7 +33,10 @@ impl Plugin for HealthPlugin {
     }
 }
 
-fn check_health(mut commands: Commands, query: Query<(Entity, &Health)>) {
+fn check_health(
+    mut commands: Commands,
+    query: Query<(Entity, &Health)>,
+) {
     for (entity, health) in query.iter() {
         if health.hp <= 0 {
             println!("Entity {:?} has died", entity);

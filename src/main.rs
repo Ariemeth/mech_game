@@ -1,3 +1,19 @@
+use bevy::prelude::*;
+use bevy::render::RenderPlugin;
+use bevy::render::settings::{Backends, RenderCreation, WgpuSettings};
+
+use camera::CameraPlugin;
+use global_input::GlobalInputPlugin;
+use mech::MechPlugin;
+//use debug::DebugPlugin;
+use movement::MovementPlugin;
+
+use crate::asset_loader::AssetLoaderPlugin;
+use crate::attack::AttackPlugin;
+use crate::health::HealthPlugin;
+use crate::targeting::TargetingPlugin;
+use crate::weapons::WeaponPlugin;
+
 mod camera;
 mod debug;
 mod movement;
@@ -8,20 +24,7 @@ mod targeting;
 mod weapons;
 mod health;
 mod attack;
-
-use bevy::prelude::*;
-use bevy::render::RenderPlugin;
-use bevy::render::settings::{Backends, RenderCreation, WgpuSettings};
-use camera::CameraPlugin;
-//use debug::DebugPlugin;
-use movement::MovementPlugin;
-use mech::MechPlugin;
-use global_input::GlobalInputPlugin;
-use crate::asset_loader::AssetLoaderPlugin;
-use crate::attack::AttackPlugin;
-use crate::health::HealthPlugin;
-use crate::targeting::TargetingPlugin;
-use crate::weapons::WeaponPlugin;
+mod equipment;
 
 fn main() {
     App::new()
@@ -37,7 +40,7 @@ fn main() {
                 ..default()
             }),
             synchronous_pipeline_compilation: false,
-        }),)
+        }), )
         // User defined plugins.
         .add_plugins(AssetLoaderPlugin)
         .add_plugins(MovementPlugin)

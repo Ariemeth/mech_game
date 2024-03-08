@@ -26,7 +26,7 @@ fn update_target(
     mut query: Query<(Entity, &mut Targeter, &Transform)>,
     possible_targets: Query<(Entity, &Targetable, &Transform)>,
 ) {
-    for (targeting_entity,mut targeting, transform) in query.iter_mut() {
+    for (targeting_entity, mut targeting, transform) in query.iter_mut() {
         if let Some(current_target) = targeting.target {
             // Check if the current target is still a viable target
             if possible_targets.contains(current_target) {
@@ -57,7 +57,10 @@ fn target_closest(possible_targets: &Query<(Entity, &Targetable, &Transform)>, t
         }
     }
 
-    if let Some(target) = possible_target {
-        targeting.target = Some(target);
+    match possible_target {
+        Some(target) => {
+            targeting.target = Some(target);
+        }
+        None => { targeting.target = None; }
     }
 }

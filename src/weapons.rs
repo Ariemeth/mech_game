@@ -1,8 +1,9 @@
 use std::time::Duration;
+
 use bevy::prelude::*;
 
 use crate::attack::AttackEvent;
-use crate::targeting::Targeter;
+use crate::targeting::{Targetable, Targeter};
 
 #[derive(Debug, Copy, Clone)]
 pub enum DamageType {
@@ -56,19 +57,19 @@ impl Weapon {
     pub fn attack(&mut self, range_to_target: f32) -> DamageType {
         self.time_since_last_fired = Timer::new(Duration::from_secs_f32(self.cooldown), TimerMode::Once);
         if range_to_target > self.range {
-            return self.damage.zero_damage()
+            return self.damage.zero_damage();
         }
 
         match self.damage {
             DamageType::Kinetic(amount) => {
                 DamageType::Kinetic((amount as f32 * self.accuracy) as u32)
-            },
+            }
             DamageType::Energy(amount) => {
                 DamageType::Energy((amount as f32 * self.accuracy) as u32)
-            },
+            }
             DamageType::Explosive(amount) => {
                 DamageType::Explosive((amount as f32 * self.accuracy) as u32)
-            },
+            }
         }
     }
 }
@@ -98,10 +99,17 @@ fn weapon_tick(
 
 fn activate_weapon(
     mut events: EventWriter<AttackEvent>,
-    mut query: Query<(Entity, &Targeter, &Transform, &mut WeaponSlot)>,
-    query_target: Query<&Transform>,
+    mut query: Query<(&Parent, &mut WeaponSlot)>,
+    parent_query: Query<(&Targeter, &Transform, Option<&Name>), With<Children>>,
+    query_target: Query<(&Transform, Option<&Name>), With<Targetable>>,
 ) {
-    for (entity, targeter, attacker_transform, mut weapon_slot) in query.iter_mut() {
+    for (parent, mut weapon_slot) in query.iter_mut() {
+        let (targeter, attacker_transform, attacker_name) = if let Ok(targeter) = parent_query.get(parent.get()) {
+            targeter
+        } else {
+            continue;
+        };
+
         if targeter.target.is_none() {
             continue;
         }
@@ -109,12 +117,22 @@ fn activate_weapon(
             continue;
         }
 
-        if let Ok(target_transform) = query_target.get(targeter.target.unwrap()) {
+        let attacker_name = match attacker_name {
+            Some(name) => name.to_string(),
+            _ => String::from("Unknown"),
+        };
+
+        if let Ok((target_transform, target_name)) = query_target.get(targeter.target.unwrap()) {
             let distance = attacker_transform.translation.distance(target_transform.translation);
             let damage = weapon_slot.weapon.attack(distance);
 
+            println!("{:?} is attacking {:?} with {:?} for {} damage", attacker_name, match target_name {
+                Some(name) => name.to_string(),
+                _ => String::from("Unknown"),
+            }, weapon_slot.weapon.damage, damage);
+
             events.send(AttackEvent {
-                attacker: entity,
+                attacker: parent.get(),
                 target: targeter.target.unwrap(),
                 damage,
                 attacker_position: attacker_transform.translation,

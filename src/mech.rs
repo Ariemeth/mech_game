@@ -19,10 +19,12 @@ struct MechBundle {
     targeting: Targeter,
     targetable: Targetable,
     health: Health,
+    name: Name,
 }
 
 impl MechBundle {
     fn new(
+        name: &str,
         scene_assets: &Res<SceneAssets>,
         starting_location: Vec3,
         starting_velocity: Vec3,
@@ -32,6 +34,7 @@ impl MechBundle {
         transform.rotate_y(angle);
 
         MechBundle {
+            name: Name::new(name.to_string()),
             acceleration: Acceleration { value: Vec3::ZERO },
             velocity: Velocity {
                 value: starting_velocity,
@@ -65,28 +68,33 @@ impl Plugin for MechPlugin {
 
 fn spawn_mechs(mut commands: Commands, scene_assets: Res<SceneAssets>) {
     let mech_bundle_1 = MechBundle::new(
+        "Mech 1",
         &scene_assets,
         Vec3::new(40.0, 0.0, 0.0),
         Vec3::ZERO,
         -std::f32::consts::PI / 2.0,
     );
-    commands.spawn((
-        mech_bundle_1,
-        WeaponSlot {
-            weapon: Weapon::new(DamageType::Kinetic(11), 100.0, 1.0, 0.85),
-        }
-    ));
+    let mech1 = commands.spawn(mech_bundle_1).id();
+    let mech1_weapon1 = commands.spawn(WeaponSlot {
+        weapon: Weapon::new(DamageType::Kinetic(11), 100.0, 1.0, 0.85),
+    }).id();
+    commands.entity(mech1).push_children(&[mech1_weapon1]);
+
 
     let mech_bundle_2 = MechBundle::new(
+        "Mech 2",
         &scene_assets,
         Vec3::new(-40.0, 0.0, 0.0),
         Vec3::ZERO,
         std::f32::consts::PI / 2.0,
     );
-    commands.spawn((
-        mech_bundle_2,
-        WeaponSlot {
-            weapon: Weapon::new(DamageType::Energy(10), 100.0, 1.0, 0.9),
-        }));
-}
+    let mech2 = commands.spawn(mech_bundle_2).id();
+    let mech2_weapon1 = commands.spawn(WeaponSlot {
+        weapon: Weapon::new(DamageType::Energy(10), 100.0, 1.0, 0.9),
+    }).id();
 
+    let mech2_weapon2 = commands.spawn(WeaponSlot {
+        weapon: Weapon::new(DamageType::Explosive(5), 100.0, 1.5, 0.25),
+    }).id();
+    commands.entity(mech2).push_children(&[mech2_weapon1, mech2_weapon2]);
+}
