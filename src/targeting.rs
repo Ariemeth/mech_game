@@ -27,9 +27,11 @@ fn update_target(
     possible_targets: Query<(Entity, &Targetable, &Transform)>,
 ) {
     for (targeting_entity,mut targeting, transform) in query.iter_mut() {
-        if targeting.target.is_some() {
-            // TODO check if target is still valid and if it is, skip to next entity
-            continue;
+        if let Some(current_target) = targeting.target {
+            // Check if the current target is still a viable target
+            if possible_targets.contains(current_target) {
+                continue;
+            }
         }
         match targeting.targeting_type {
             TargetingType::Closest => {
