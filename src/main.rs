@@ -25,6 +25,7 @@ mod weapons;
 mod health;
 mod attack;
 mod equipment;
+mod steering;
 
 fn main() {
     App::new()
