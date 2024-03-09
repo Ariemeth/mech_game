@@ -1,22 +1,27 @@
 use bevy::prelude::*;
 
+pub enum SteeringBehavior{
+
+}
+#[derive(Event)]
+pub struct SteeringEvent{}
+
 #[derive(Component, Debug)]
-pub struct Steering {}
+pub struct Steering {
+
+}
 
 
 pub struct SteeringPlugin;
 
 impl Plugin for SteeringPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_steering);
+        app.add_event::<SteeringEvent>();
     }
 }
 
 fn update_steering(
-    mut query: Query<(&Steering, &mut Transform)>,
-    time: Res<Time>,
+    mut steering_events: EventReader<SteeringEvent>
 ) {
-    for (_steering, mut transform) in query.iter_mut() {
-        transform.translation += Vec3::new(0.0, 0.0, 0.0) * time.delta_seconds();
-    }
+
 }
