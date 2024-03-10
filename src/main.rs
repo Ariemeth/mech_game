@@ -10,6 +10,7 @@ use movement::MovementPlugin;
 
 use crate::asset_loader::AssetLoaderPlugin;
 use crate::attack::AttackPlugin;
+use crate::behaviors::BehaviorsPlugin;
 use crate::health::HealthPlugin;
 use crate::targeting::TargetingPlugin;
 use crate::weapons::WeaponPlugin;
@@ -26,6 +27,7 @@ mod health;
 mod attack;
 mod equipment;
 mod steering;
+mod behaviors;
 
 fn main() {
     App::new()
@@ -53,5 +55,6 @@ fn main() {
         .add_plugins(WeaponPlugin)
         .add_plugins(HealthPlugin)
         .add_plugins(AttackPlugin)
+        .add_plugins(BehaviorsPlugin)
         .run();
 }

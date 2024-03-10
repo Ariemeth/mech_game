@@ -7,7 +7,7 @@ use crate::{
     movement::Velocity,
     targeting::{Targetable, Targeter},
 };
-use crate::targeting::TargetingType;
+use crate::behaviors::BehaviorsBundle;
 use crate::weapons::{DamageType, Weapon, WeaponSlot};
 
 #[derive(Bundle)]
@@ -20,6 +20,7 @@ struct MechBundle {
     targetable: Targetable,
     health: Health,
     name: Name,
+    behaviors: BehaviorsBundle,
 }
 
 impl MechBundle {
@@ -45,12 +46,10 @@ impl MechBundle {
                 ..default()
             },
             mech: Mech,
-            targeting: Targeter {
-                target: None,
-                targeting_type: TargetingType::Closest,
-            },
+            targeting: Targeter::default(),
             targetable: Targetable {},
             health: Health::new(100),
+            behaviors: BehaviorsBundle::default(),
         }
     }
 }
