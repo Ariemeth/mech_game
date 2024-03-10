@@ -12,6 +12,7 @@ use crate::asset_loader::AssetLoaderPlugin;
 use crate::attack::AttackPlugin;
 use crate::behaviors::BehaviorsPlugin;
 use crate::health::HealthPlugin;
+use crate::steering::SteeringPlugin;
 use crate::targeting::TargetingPlugin;
 use crate::weapons::WeaponPlugin;
 
@@ -56,5 +57,6 @@ fn main() {
         .add_plugins(HealthPlugin)
         .add_plugins(AttackPlugin)
         .add_plugins(BehaviorsPlugin)
+        .add_plugins(SteeringPlugin)
         .run();
 }

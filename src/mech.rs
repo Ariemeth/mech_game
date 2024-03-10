@@ -8,6 +8,7 @@ use crate::{
     targeting::{Targetable, Targeter},
 };
 use crate::behaviors::BehaviorsBundle;
+use crate::steering::Steering;
 use crate::weapons::{DamageType, Weapon, WeaponSlot};
 
 #[derive(Bundle)]
@@ -21,6 +22,7 @@ struct MechBundle {
     health: Health,
     name: Name,
     behaviors: BehaviorsBundle,
+    steering: Steering,
 }
 
 impl MechBundle {
@@ -50,6 +52,7 @@ impl MechBundle {
             targetable: Targetable {},
             health: Health::new(100),
             behaviors: BehaviorsBundle::default(),
+            steering: Steering::default(),
         }
     }
 }

@@ -1,5 +1,6 @@
 use bevy::prelude::*;
-use crate::behaviors::{TargetingBehavior, TargetingType};
+
+use crate::behaviors::{SteeringEvent, SteeringType, TargetingBehavior, TargetingType};
 
 #[derive(Component, Debug)]
 pub struct Targeter {
@@ -29,6 +30,7 @@ impl Plugin for TargetingPlugin {
 fn update_target(
     mut query: Query<(Entity, &mut Targeter, &Transform, &TargetingBehavior)>,
     possible_targets: Query<(Entity, &Targetable, &Transform)>,
+    mut steering_event: EventWriter<SteeringEvent>,
 ) {
     for (targeting_entity, mut targeting, transform, behavior) in query.iter_mut() {
         if let Some(current_target) = targeting.target {
@@ -39,36 +41,35 @@ fn update_target(
         }
         match behavior.targeting_type {
             TargetingType::Closest => {
-                target_closest(&possible_targets, &targeting_entity, &mut targeting, transform);
+                let mut distance = f32::MAX;
+                let mut possible_target = None;
+                for (entity, _targetable, target_transform) in possible_targets.iter() {
+                    if transform == target_transform {
+                        continue;
+                    }
+                    let distance_to_target = transform.translation.distance_squared(target_transform.translation);
+
+                    if distance_to_target < distance {
+                        println!("Targetable {:?} is closer to {:?}", &entity, &targeting_entity);
+                        possible_target = Some(entity);
+                        distance = distance_to_target
+                    }
+                }
+
+                match possible_target {
+                    Some(target) => {
+                        targeting.target = Some(target);
+                    }
+                    None => {
+                        targeting.target = None;
+                        steering_event.send(SteeringEvent {
+                            entity: targeting_entity,
+                            steering_type: SteeringType::None,
+                        });
+                    }
+                }
             }
         }
     }
 }
 
-fn target_closest(
-    possible_targets: &Query<(Entity, &Targetable, &Transform)>,
-    targeting_entity: &Entity,
-    targeting: &mut Mut<Targeter>, transform: &Transform
-) {
-    let mut distance = f32::MAX;
-    let mut possible_target = None;
-    for (entity, _targetable, target_transform) in possible_targets.iter() {
-        if transform == target_transform {
-            continue;
-        }
-        let distance_to_target = transform.translation.distance_squared(target_transform.translation);
-
-        if distance_to_target < distance {
-            println!("Targetable {:?} is closer to {:?}", &entity, &targeting_entity);
-            possible_target = Some(entity);
-            distance = distance_to_target
-        }
-    }
-
-    match possible_target {
-        Some(target) => {
-            targeting.target = Some(target);
-        }
-        None => { targeting.target = None; }
-    }
-}

@@ -3,6 +3,7 @@ use std::time::Duration;
 use bevy::prelude::*;
 
 use crate::attack::AttackEvent;
+use crate::behaviors::{SteeringEvent, SteeringType};
 use crate::targeting::{Targetable, Targeter};
 
 #[derive(Debug, Copy, Clone)]
@@ -99,6 +100,7 @@ fn weapon_tick(
 
 fn activate_weapon(
     mut events: EventWriter<AttackEvent>,
+    mut steering_event: EventWriter<SteeringEvent>,
     mut query: Query<(&Parent, &mut WeaponSlot)>,
     parent_query: Query<(&Targeter, &Transform, Option<&Name>), With<Children>>,
     query_target: Query<(&Transform, Option<&Name>), With<Targetable>>,
@@ -124,6 +126,15 @@ fn activate_weapon(
 
         if let Ok((target_transform, target_name)) = query_target.get(targeter.target.unwrap()) {
             let distance = attacker_transform.translation.distance(target_transform.translation);
+
+            if distance > weapon_slot.weapon.range {
+                steering_event.send(SteeringEvent {
+                    entity: parent.get(),
+                    steering_type: SteeringType::Direct(target_transform.translation),
+                });
+                continue;
+            }
+
             let damage = weapon_slot.weapon.attack(distance);
 
             println!("{:?} is attacking {:?} with {:?} for {} damage", attacker_name, match target_name {
