@@ -40,11 +40,11 @@ impl MechBundle {
             name: Name::new(name.to_string()),
             acceleration: Acceleration::new(
                 Vec3::ZERO,
-                Vec3::new(2.4, 2.4, 0.0),
+                Vec3::new(2.4, 0., 2.4),
             ),
             velocity: Velocity::new (
                 starting_velocity,
-                Vec3::new(9.0, 9.0, 0.0),
+                Vec3::new(9.0, 0., 2.4),
             ),
             model: SceneBundle {
                 scene: scene_assets.mech.clone(),
@@ -76,7 +76,7 @@ fn spawn_mechs(mut commands: Commands, scene_assets: Res<SceneAssets>) {
     let mech_bundle_1 = MechBundle::new(
         "Mech 1",
         &scene_assets,
-        Vec3::new(40.0, 0.0, 0.0),
+        Vec3::new(40.0, 0.0, 20.0),
         Vec3::ZERO,
         -std::f32::consts::PI / 2.0,
     );

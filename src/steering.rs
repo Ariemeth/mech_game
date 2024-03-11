@@ -16,9 +16,9 @@ impl Plugin for SteeringPlugin {
 }
 
 fn update_steering(
-    mut query: Query<(&SteeringBehavior, &Transform, &mut Velocity, &mut Acceleration), With<Steering>>,
+    mut query: Query<(&SteeringBehavior, &mut Transform, &mut Velocity, &mut Acceleration), With<Steering>>,
 ) {
-    for (behavior, transform, mut velocity, mut acceleration) in query.iter_mut() {
+    for (behavior, mut transform, mut velocity, mut acceleration) in query.iter_mut() {
         match behavior.steering_type {
             SteeringType::None => {
                 acceleration.value = Vec3::ZERO;
@@ -29,6 +29,7 @@ fn update_steering(
                 let direction = target - transform.translation;
                 let direction = direction.normalize();
                 acceleration.value += direction * 0.1;
+                transform.look_to(-target, Vec3::Y);
             }
         }
     }
