@@ -29,7 +29,6 @@ fn update_steering(
                 let direction = target - transform.translation;
                 let direction = direction.normalize();
                 acceleration.value += direction * 0.1;
-                println!("Acceleration: {:?}", acceleration.value);
             }
         }
     }

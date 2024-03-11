@@ -99,12 +99,15 @@ fn weapon_tick(
 }
 
 fn activate_weapon(
-    mut events: EventWriter<AttackEvent>,
-    mut steering_event: EventWriter<SteeringEvent>,
+    mut attack_events: EventWriter<AttackEvent>,
+    mut steering_events: EventWriter<SteeringEvent>,
     mut query: Query<(&Parent, &mut WeaponSlot)>,
+    mut query2: Query<(&Parent, &Children)>,
     parent_query: Query<(&Targeter, &Transform, Option<&Name>), With<Children>>,
     query_target: Query<(&Transform, Option<&Name>), With<Targetable>>,
 ) {
+
+
     for (parent, mut weapon_slot) in query.iter_mut() {
         let (targeter, attacker_transform, attacker_name) = if let Ok(targeter) = parent_query.get(parent.get()) {
             targeter
@@ -128,7 +131,7 @@ fn activate_weapon(
             let distance = attacker_transform.translation.distance(target_transform.translation);
 
             if distance > weapon_slot.weapon.range {
-                steering_event.send(SteeringEvent {
+                steering_events.send(SteeringEvent {
                     entity: parent.get(),
                     steering_type: SteeringType::Direct(target_transform.translation),
                 });
@@ -142,7 +145,7 @@ fn activate_weapon(
                 _ => String::from("Unknown"),
             }, weapon_slot.weapon.damage, damage);
 
-            events.send(AttackEvent {
+            attack_events.send(AttackEvent {
                 attacker: parent.get(),
                 target: targeter.target.unwrap(),
                 damage,

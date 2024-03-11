@@ -38,10 +38,14 @@ impl MechBundle {
 
         MechBundle {
             name: Name::new(name.to_string()),
-            acceleration: Acceleration { value: Vec3::ZERO },
-            velocity: Velocity {
-                value: starting_velocity,
-            },
+            acceleration: Acceleration::new(
+                Vec3::ZERO,
+                Vec3::new(2.4, 2.4, 0.0),
+            ),
+            velocity: Velocity::new (
+                starting_velocity,
+                Vec3::new(9.0, 9.0, 0.0),
+            ),
             model: SceneBundle {
                 scene: scene_assets.mech.clone(),
                 transform,
