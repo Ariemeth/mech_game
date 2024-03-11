@@ -99,8 +99,8 @@ fn spawn_mechs(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         weapon: Weapon::new(DamageType::Energy(10), 60.0, 1.0, 0.9),
     }).id();
 
-    // let mech2_weapon2 = commands.spawn(WeaponSlot {
-    //     weapon: Weapon::new(DamageType::Explosive(5), 100.0, 1.5, 0.25),
-    // }).id();
-    commands.entity(mech2).push_children(&[mech2_weapon1]);
+    let mech2_weapon2 = commands.spawn(WeaponSlot {
+        weapon: Weapon::new(DamageType::Explosive(5), 90.0, 1.5, 0.25),
+    }).id();
+    commands.entity(mech2).push_children(&[mech2_weapon1, mech2_weapon2]);
 }

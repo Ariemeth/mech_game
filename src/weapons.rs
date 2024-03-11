@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::time::Duration;
 
 use bevy::prelude::*;
@@ -102,11 +103,10 @@ fn activate_weapon(
     mut attack_events: EventWriter<AttackEvent>,
     mut steering_events: EventWriter<SteeringEvent>,
     mut query: Query<(&Parent, &mut WeaponSlot)>,
-    mut query2: Query<(&Parent, &Children)>,
     parent_query: Query<(&Targeter, &Transform, Option<&Name>), With<Children>>,
     query_target: Query<(&Transform, Option<&Name>), With<Targetable>>,
 ) {
-
+    let mut entities_weapons_out_of_range: HashMap<Entity, i8> = HashMap::new();
 
     for (parent, mut weapon_slot) in query.iter_mut() {
         let (targeter, attacker_transform, attacker_name) = if let Ok(targeter) = parent_query.get(parent.get()) {
@@ -131,11 +131,21 @@ fn activate_weapon(
             let distance = attacker_transform.translation.distance(target_transform.translation);
 
             if distance > weapon_slot.weapon.range {
+                if entities_weapons_out_of_range.contains_key(parent) {
+                    let count = entities_weapons_out_of_range.get_mut(parent).unwrap();
+                    *count += 1;
+                } else {
+                    entities_weapons_out_of_range.insert(parent.get(), 1);
+                }
                 steering_events.send(SteeringEvent {
                     entity: parent.get(),
                     steering_type: SteeringType::Direct(target_transform.translation),
                 });
                 continue;
+            }
+
+            if !entities_weapons_out_of_range.contains_key(parent) {
+                entities_weapons_out_of_range.insert(parent.get(), 0);
             }
 
             let damage = weapon_slot.weapon.attack(distance);
@@ -150,6 +160,15 @@ fn activate_weapon(
                 target: targeter.target.unwrap(),
                 damage,
                 attacker_position: attacker_transform.translation,
+            });
+        }
+    }
+
+    for (entity, count) in entities_weapons_out_of_range.iter() {
+        if *count <= 0 {
+            steering_events.send(SteeringEvent {
+                entity: *entity,
+                steering_type: SteeringType::None,
             });
         }
     }
