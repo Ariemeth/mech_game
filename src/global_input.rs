@@ -14,6 +14,6 @@ fn exit_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
     if keyboard_input.pressed(KeyCode::Escape) {
-        exit.send(AppExit);
+        exit.send(AppExit::Success);
     }
 }
